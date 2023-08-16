@@ -1,11 +1,11 @@
-$(document).ready(function () {
-    $("#current_pwd").keyup(function () {
+$(document).ready(function() {
+    $("#current_pwd").keyup(function() {
         var current_pwd = $("#current_pwd").val();
         $.ajax({
             type: "get",
             url: "/admin/check-pwd",
             data: { current_pwd: current_pwd },
-            success: function (resp) {
+            success: function(resp) {
                 // alert(resp);
                 if (resp == "false") {
                     $("#chkPwd").html(
@@ -17,7 +17,7 @@ $(document).ready(function () {
                     );
                 }
             },
-            error: function () {
+            error: function() {
                 alert("Error");
             },
         });
@@ -48,10 +48,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -72,10 +72,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -109,10 +109,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -146,10 +146,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -170,10 +170,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -196,10 +196,10 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
@@ -226,20 +226,19 @@ $(document).ready(function () {
         },
         errorClass: "help-inline",
         errorElement: "span",
-        highlight: function (element, errorClass, validClass) {
+        highlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").addClass("error");
         },
-        unhighlight: function (element, errorClass, validClass) {
+        unhighlight: function(element, errorClass, validClass) {
             $(element).parents(".control-group").removeClass("error");
             $(element).parents(".control-group").addClass("success");
         },
     });
 
-    $(".deleteCategory").click(function () {
+    $(".deleteCategory").click(function() {
         var id = $(this).attr("rel");
         var deletefunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -250,7 +249,7 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deletefunction + "/" + id;
             }
         );
@@ -272,11 +271,10 @@ $(document).ready(function () {
     // 	return false;
     // });
 
-    $(".deleteProduct").click(function () {
+    $(".deleteProduct").click(function() {
         var id = $(this).attr("rel");
         var deleteFunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -287,17 +285,16 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deleteFunction + "/" + id;
             }
         );
     });
 
-    $(".deleteAttribute").click(function () {
+    $(".deleteAttribute").click(function() {
         var id = $(this).attr("rel");
         var deletefunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -307,17 +304,16 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deletefunction + "/" + id;
             }
         );
     });
 
-    $(".deleteImage").click(function () {
+    $(".deleteImage").click(function() {
         var id = $(this).attr("rel");
         var deletefunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -328,17 +324,16 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deletefunction + "/" + id;
             }
         );
     });
 
-    $(".deleteCoupon").click(function () {
+    $(".deleteCoupon").click(function() {
         var id = $(this).attr("rel");
         var deleteFunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -349,17 +344,16 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deleteFunction + "/" + id;
             }
         );
     });
 
-    $(".deleteBanner").click(function () {
+    $(".deleteBanner").click(function() {
         var id = $(this).attr("rel");
         var deleteFunction = $(this).attr("rell");
-        swal(
-            {
+        swal({
                 // position: 'top-end',
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -370,13 +364,33 @@ $(document).ready(function () {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes, delete it!",
             },
-            function () {
+            function() {
                 window.location.href = "/admin/" + deleteFunction + "/" + id;
             }
         );
     });
 
-    $(document).ready(function () {
+    $(".deletePage").click(function() {
+        var id = $(this).attr("rel");
+        var deleteFunction = $(this).attr("rell");
+        swal({
+                // position: 'top-end',
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+            },
+            function() {
+                window.location.href = "/admin/" + deleteFunction + "/" + id;
+            }
+        );
+    });
+
+    $(document).ready(function() {
         var maxField = 10; //Input fields increment limitation
         var addButton = $(".add_button"); //Add button selector
         var wrapper = $(".field_wrapper"); //Input field wrapper
@@ -385,7 +399,7 @@ $(document).ready(function () {
         var x = 1; //Initial field counter is 1
 
         //Once add button is clicked
-        $(addButton).click(function () {
+        $(addButton).click(function() {
             //Check maximum number of input fields
             if (x < maxField) {
                 x++; //Increment field counter
@@ -394,7 +408,7 @@ $(document).ready(function () {
         });
 
         //Once remove button is clicked
-        $(wrapper).on("click", ".remove_button", function (e) {
+        $(wrapper).on("click", ".remove_button", function(e) {
             e.preventDefault();
             $(this).parent("div").remove(); //Remove field html
             x--; //Decrement field counter

@@ -6,7 +6,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Home | Keshri's Fashion</title>
+    
+    <title>@if(!empty($meta_title)) {{ $meta_title }} @else Keshri's Fashion @endif</title>
+    @if(!empty($meta_description))<meta name="description" content="{{ $meta_description }}"> @endif
+    @if(!empty($meta_keywords))<meta name="keywords" content="{{ $meta_keywords }}"> @endif
     <link rel="icon" type="image/x-icon" width="100%" height="100%" href="/images/backend_images/Logo2.png" />
 
     <!-- Google Task Manager GTM -->

@@ -113,14 +113,17 @@ $mainCategories = Controller::mainCategories();
 										<li><a href="blog-single.html">Blog Single</a></li>
                                     </ul>
                                 </li> 
-								<li><a href="404.html">404</a></li>
-								<li><a href="contact-us.html">Contact</a></li>
+								<li><a href="{{ url('page/contact-us') }}">Contact</a></li>
 							</ul>
 						</div>
 					</div>
 					<div class="col-sm-3">
 						<div class="search_box pull-right">
-							<input type="text" placeholder="Search"/>
+							<form action="{{ url('/search-products') }}" method="post">
+								{{ csrf_field() }}
+								<input type="text" placeholder="Search" name="product"/>
+								<button class="btn btn-default" type="submit" style="border: 0px; height:34px; ">Go</button>
+							</form>
 						</div>
 					</div>
 				</div>

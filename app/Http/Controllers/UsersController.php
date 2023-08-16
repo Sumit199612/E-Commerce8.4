@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use App\Models\User;
-use Auth;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class UsersController extends Controller
 {
@@ -17,6 +17,28 @@ class UsersController extends Controller
     public function userLoginRegister()
     {
         return view('users.login_register');
+    }
+
+    public function login(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->all();
+
+            // echo "<pre>"; print_r($data); die;
+            if (Auth::attempt(['email' => $data['email'], 'password' => $data['password'], 'status' => '1'])) {
+                $userStatus = User::where('email', $data['email'])->first();
+                if ($userStatus->status == 0) {
+                    return redirect()->back()->with('error', "Your account is not activated. Please confirm your E-mail to activate your account");
+                }
+                Session::put('frontSession', $data['email']);
+                $logged_user_id = DB::table('users')->where(['email' => $data['email']])->get('id');
+
+                Session::put('logged_user_id', $logged_user_id[0]);
+                return redirect('/cart');
+            } else {
+                return redirect()->back()->with('error', "Invalid Email Id or Password");
+            }
+        }
     }
 
     public function register(Request $request)
@@ -58,6 +80,43 @@ class UsersController extends Controller
                 }
             }
         }
+    }
+
+    public function forgotPassword(Request $request) {
+        if($request->isMethod('post')){
+            $data = $request->all();
+            // echo "<pre>"; print_r($data); die;
+            $usersCount = User::where(['email'=> $data['email'], 'status'=>1])->count();
+            if($usersCount == 0){
+                return redirect()->back()->with('error', "This email is not registered with us. Please register or enter a valid email.");
+            }
+
+            // Get user details
+            $userDetails = User::where(['email'=>$data['email'], 'status'=>1])->first();
+
+            $random_password = str_random(8);
+
+            // Encode/Secure Password
+            $newPassword = bcrypt($random_password);
+
+            //Update Password
+            User::where('email',$data['email'])->update(['password'=>$newPassword]);
+
+            // Send new password to user email
+            $email = $data['email'];
+            $name = $userDetails->name;
+            $messageData = [
+                'email' =>$email,
+                'name' =>$name,
+                'password'=>$random_password];
+
+            Mail::send('emails.forgotPassword',$messageData,function($message)use($email){
+                $message->to($email)->subject('Reset Password - Keshri Fashion Account');
+            });
+
+            return redirect('/login-register')->with('success', "Please check your email for new password.");
+        }
+        return view('users.forgot_password');
     }
 
     public function chkUserPassword(Request $request)
@@ -114,28 +173,6 @@ class UsersController extends Controller
             echo "false";
         } else {
             echo "true";die;
-        }
-    }
-
-    public function login(Request $request)
-    {
-        if ($request->isMethod('post')) {
-            $data = $request->all();
-
-            // echo "<pre>"; print_r($data); die;
-            if (Auth::attempt(['email' => $data['email'], 'password' => $data['password'], 'status' => '1'])) {
-                $userStatus = User::where('email', $data['email'])->first();
-                if ($userStatus->status == 0) {
-                    return redirect()->back()->with('error', "Your account is not activated. Please confirm your E-mail to activate your account");
-                }
-                Session::put('frontSession', $data['email']);
-                $logged_user_id = DB::table('users')->where(['email' => $data['email']])->get('id');
-
-                Session::put('logged_user_id', $logged_user_id[0]);
-                return redirect('/cart');
-            } else {
-                return redirect()->back()->with('error', "Invalid Email Id or Password");
-            }
         }
     }
 
@@ -212,5 +249,10 @@ class UsersController extends Controller
         // }
 
         return view('users.account')->with(compact('countries', 'userDetails'));
+    }
+
+    public function viewUsers() {
+        $users = User::get();
+        return view('admin.users.view_users')->with(compact('users'));
     }
 }

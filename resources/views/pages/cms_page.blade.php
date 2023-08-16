@@ -1,6 +1,7 @@
 @extends('layouts.frontLayout.front_design')
 @section('content')
-<section id="slider"><!--slider-->
+<!--slider-->
+{{-- <section id="slider">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -36,7 +37,8 @@
             </div>
         </div>
     </div>
-</section><!--/slider-->
+</section> --}}
+<!--/slider-->
 	
 <section>
     <div class="container">
@@ -47,34 +49,8 @@
             
             <div class="col-sm-9 padding-right">
                 <div class="features_items"><!--features_items-->
-                    <h2 class="title text-center">Featured Items</h2>
-                    @foreach($productsAll as $product)
-                    <div class="col-sm-4">
-                        <div class="product-image-wrapper">
-                            <div class="single-products">
-                                <div class="productinfo text-center">
-                                    <img src="{{ asset('images/backend_images/products/medium/'.$product->product_image) }}" alt="" />
-                                    <h2>INR {{ $product->product_price }}</h2>
-                                    <p>{{ $product->product_name }}</p>
-                                    <a href="{{ url('product/'.$product->id) }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-                                </div>
-                                <!-- <div class="product-overlay">
-                                    <div class="overlay-content">
-                                        <h2>INR {{ $product->product_price }}</h2>
-                                        <p>{{ $product->product_name }}</p>
-                                        <a href="{{ url('product/'.$product->id) }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-                                    </div>
-                                </div> -->
-                            </div>
-                            <div class="choose">
-                                <ul class="nav nav-pills nav-justified">
-                                    <li><a href="#"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
-                                    <li><a href="#"><i class="fa fa-plus-square"></i>Add to compare</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
+                    <h2 class="title text-center">{{ $cmsPageDetails->title }}</h2>
+                    <p>{{ $cmsPageDetails->description }}</p>
                     {{-- <div align="center">{{ $productsAll->links() }}</div> --}}
                 </div><!--features_items-->
             </div>

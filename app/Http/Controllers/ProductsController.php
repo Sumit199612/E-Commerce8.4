@@ -15,7 +15,7 @@ use App\Models\ProductsImage;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Image;
@@ -74,8 +74,14 @@ class ProductsController extends Controller
             } else {
                 $status = 1;
             }
+            if (empty($data['featured_product'])) {
+                $featured_product = 0;
+            } else {
+                $featured_product = 1;
+            }
 
             $product->status = $status;
+            $product->featured_product = $featured_product;
             $product->save();
             return redirect('/admin/view-products')->with('success', 'Product Inserted Successfully !!!');
             // return redirect()->back()->with('success','Product Inserted Successfully !!!');
@@ -139,7 +145,13 @@ class ProductsController extends Controller
                 $status = 1;
             }
 
-            Product::where(['id' => $id])->update(['category_id' => $data['category_id'], 'product_name' => $data['product_name'], 'product_code' => $data['product_code'], 'product_color' => $data['product_color'], 'product_description' => $data['product_description'], 'care' => $data['care'], 'product_price' => $data['product_price'], 'product_image' => $filename, 'status' => $status]);
+            if (empty($data['featured_product'])) {
+                $featured_product = 0;
+            } else {
+                $featured_product = 1;
+            }
+
+            Product::where(['id' => $id])->update(['category_id' => $data['category_id'], 'product_name' => $data['product_name'], 'product_code' => $data['product_code'], 'product_color' => $data['product_color'], 'product_description' => $data['product_description'], 'care' => $data['care'], 'product_price' => $data['product_price'], 'product_image' => $filename, 'status' => $status, 'featured_product' => $featured_product]);
             // return redirect('/admin/view-categories')->with('success','Category Updated Successfully !!!');
             return redirect('/admin/view-products')->with('success', 'Product Updated Successfully !!!');
         }
@@ -268,17 +280,8 @@ class ProductsController extends Controller
 
             foreach ($data['sku'] as $key => $val) {
                 if (!empty($val)) {
-                    // Prevents duplicate SKU Entry
-                    $attrCountSKU = ProductsAttribute::where('sku', $val)->count();
-                    if ($attrCountSKU > 0) {
-                        return redirect('admin/add-attributes/' . $id)->with('error', 'SKU already exists!! Please add another SKU.');
-                    }
-
-                    // Prevents duplicate Size Entry
-                    $attrCountSize = ProductsAttribute::where(['product_id' => $id, 'size' => $data['size'][$key]])->count();
-                    if ($attrCountSize > 0) {
-                        return redirect('admin/add-attributes/' . $id)->with('error', '"' . $data['size'][$key] . '" size already exists for this product.!! Please add another Size.');
-                    }
+                    
+                    
 
                     $attribute = new ProductsAttribute;
                     $attribute->product_id = $id;
@@ -352,7 +355,6 @@ class ProductsController extends Controller
 
     public function products($url = null)
     {
-
         // Show 404 page if Category Url does not exists.
         $countCategory = Category::where(['url' => $url, 'status' => 1])->count();
         if ($countCategory == 0) {
@@ -369,16 +371,32 @@ class ProductsController extends Controller
             foreach ($subCategories as $subcate) {
                 $cate_ids[] = $subcate->id;
             }
-            $productsAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->get();
-            $productsAll = json_decode(json_encode($productsAll));
-            // echo "<pre>"; print_r($productsAll);
+            $productAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->get();
+            // $productAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->paginate(3);
+            // $productAll = json_decode(json_encode($productAll));
+            // echo "<pre>"; print_r($productAll);
         } else {
             // If Url is Sub-Category Url
-            $productsAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->get();
+            $productAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->get();
+            $productAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->paginate(3);
         }
         // echo $categoryDetails->id; die;
-        // $productsAll = Product::where(['category_id' => $categoryDetails->id])->get();
-        return view('products.listing')->with(compact('categories', 'categoryDetails', 'productsAll'));
+        // $productAll = Product::where(['category_id' => $categoryDetails->id])->get();
+        return view('products.listing')->with(compact('categories', 'categoryDetails', 'productAll'));
+    }
+
+    public function searchProducts(Request $request) {
+        if($request->isMethod('post')) {
+            $data = $request->all();
+            // echo "<pre>"; print_r($data); die;
+            $categories = Category::with('categories')->where(['parent_id' => 0])->get();
+
+            $searchProduct = $data['product'];
+
+            $productAll = Product::where('product_name', 'like', '%'.$searchProduct.'%')->orwhere('product_code',$searchProduct)->where('status',1)->get();
+
+            return view('products.listing')->with(compact('categories','productAll','searchProduct'));
+        }
     }
 
     public function product($id = null)
@@ -441,6 +459,15 @@ class ProductsController extends Controller
         $data = $request->all();
         // echo "<pre>"; print_r($data); die;
 
+        // Check Product Stock is available or not.
+        $productSize = explode("-", $data['Size']);
+        $getProductStock = ProductsAttribute::where(['product_id' => $data['product_id'], 'Size' => $productSize[1]])->first();
+        // echo "<pre>"; print_r($getProductStock->stock); die;
+
+        if($getProductStock->stock<$data['quantity']){
+            return redirect()->back()->with('error', 'Required Quantity is not available');
+        }
+
         if (empty(Auth::user()->id)) {
             $data['user_id'] = '';
         } else {
@@ -449,23 +476,35 @@ class ProductsController extends Controller
 
         $session_id = Session::get('session_id');
 
-        if (empty($session_id)) {
+        if (!isset($session_id)) {
             $session_id = str_random(40);
             Session::put('session_id', $session_id);
         }
         $sizeArr = explode("-", $data['Size']);
+        $productsSize = $sizeArr[1];
 
-        $countProducts = DB::table('cart')->where(['product_id' => $data['product_id'], 'product_color' => $data['product_color'], 'Size' => $sizeArr[1], 'session_id' => $session_id])->count();
-        // echo $countProducts; die;
-
-        if ($countProducts > 0) {
-            return redirect()->back()->with('error', 'This product is already exists in your Cart!!!');
-        } else {
-
-            $getSKU = ProductsAttribute::select('sku')->where(['product_id' => $data['product_id'], 'Size' => $sizeArr[1]])->first();
-
-            DB::table('cart')->insert(['product_id' => $data['product_id'], 'product_name' => $data['product_name'], 'product_code' => $getSKU->sku, 'product_color' => $data['product_color'], 'product_price' => $data['product_price'], 'Size' => $sizeArr[1], 'quantity' => $data['quantity'], 'user_id' => $data['user_id'], 'session_id' => $session_id]);
+        if(empty(Auth::check())){
+            $countProducts = DB::table('cart')->where(['product_id' => $data['product_id'], 'product_color' => $data['product_color'], 'Size' => $productsSize, 'session_id' => $session_id])->count();
+            // echo $countProducts; die;
+    
+            if ($countProducts > 0) {
+                return redirect()->back()->with('error', 'This product is already exists in your Cart!!!');
+            }
+        }else{
+            $countProducts = DB::table('cart')->where(['product_id' => $data['product_id'], 'product_color' => $data['product_color'], 'Size' => $productsSize, 'user_id' => $data['user_id']])->count();
+            // echo $countProducts; die;
+    
+            if ($countProducts > 0) {
+                return redirect()->back()->with('error', 'This product is already exists in your Cart!!!');
+            }
         }
+
+         
+
+        $getSKU = ProductsAttribute::select('sku')->where(['product_id' => $data['product_id'], 'Size' => $sizeArr[1]])->first();
+
+        DB::table('cart')->insert(['product_id' => $data['product_id'], 'product_name' => $data['product_name'], 'product_code' => $getSKU->sku, 'product_color' => $data['product_color'], 'product_price' => $data['product_price'], 'Size' => $sizeArr[1], 'quantity' => $data['quantity'], 'user_id' => $data['user_id'], 'session_id' => $session_id]);
+        
 
         return redirect('cart')->with('success', 'Product has been added in Cart!!!');
     }
@@ -746,17 +785,17 @@ class ProductsController extends Controller
                 // echo "<pre>"; print_r($userDetails);die;
 
                 /* Code for Order Email Start*/
-                // $email = $user_email;
-                // $messageData = [
-                //     'email' => $email,
-                //     'name' => $shippingDetails->name,
-                //     'order_id' => $order_id,
-                //     'productDetails' => $productDetails,
-                //     'userDetails' => $userDetails,
-                // ];
-                // Mail::send('emails.order', $messageData, function ($message) use ($email) {
-                //     $message->to($email)->subject('Order Placed - From Keshris Fashion');
-                // });
+                $email = $user_email;
+                $messageData = [
+                    'email' => $email,
+                    'name' => $shippingDetails->name,
+                    'order_id' => $order_id,
+                    'productDetails' => $productDetails,
+                    'userDetails' => $userDetails,
+                ];
+                Mail::send('emails.order', $messageData, function ($message) use ($email) {
+                    $message->to($email)->subject('Order Placed - From Keshris Fashion');
+                });
                 /* Code for Order Email Ends*/
                 // COD - Redirect user to Thanks page after saving order
                 return redirect('/thanks');
@@ -826,6 +865,16 @@ class ProductsController extends Controller
         $user_id = $orderDetails->user_id;
         $userDetails = User::where('id', $user_id)->first();
         return view('admin.orders.order_details')->with(compact('orderDetails', 'userDetails'));
+    }
+
+    public function viewOrderInvoice($order_id)
+    {
+        $orderDetails = Order::with('orders')->where('id', $order_id)->first();
+        $orderDetails = json_decode(json_encode($orderDetails));
+        // echo "<pre>"; print_r($orderDetails); die;
+        $user_id = $orderDetails->user_id;
+        $userDetails = User::where('id', $user_id)->first();
+        return view('admin.orders.order_invoice')->with(compact('orderDetails', 'userDetails'));
     }
 
     public function updateOrderStatus(Request $request)

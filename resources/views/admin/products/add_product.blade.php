@@ -95,6 +95,13 @@
                   <input type="checkbox" name="status" id="status" value="1">
                 </div>
               </div>
+
+              <div class="control-group">
+                <label class="control-label">Featured Product</label>
+                <div class="controls">
+                  <input type="checkbox" name="featured_product" id="featured_product" value="0">
+                </div>
+              </div>
               
               <div class="form-actions">
                 <input type="submit" value="Add Product" class="btn btn-success">

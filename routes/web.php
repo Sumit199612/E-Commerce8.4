@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::match(['get', 'post'], '/admin', 'AdminController@login');
 
@@ -64,12 +65,18 @@ Route::get('confirm/{code}', 'UsersController@confirmAccount');
 //User Login Form Submit
 Route::post('/user-login', 'UsersController@login');
 
+// Forgot User Password
+Route::match(['get','post'],'/forgot-password', 'UsersController@forgotPassword');
+
 // User Logout
 Route::get('/user-logout', 'UsersController@logout');
 //Check if User already exists
 Route::match(['GET', 'POST'], '/check-email', 'UsersController@checkEmail');
 
-// All Routes after Login
+// Search Products
+Route::match(['get','post'], '/search-products', 'ProductsController@searchProducts');
+
+// All Routes after User Login
 Route::group(['middleware' => ['frontlogin']], function () {
     // User Account Page
     Route::match(['GET', 'POST'], 'account', 'UsersController@account');
@@ -100,6 +107,7 @@ Route::group(['middleware' => ['frontlogin']], function () {
     Route::post('/payment/status', 'PaytmController@paymentCallback')->name('status');
 });
 
+// All Routes after Admin Login
 Route::group(['middleware' => ['adminlogin']], function () {
     Route::get('/admin/dashboard', 'AdminController@dashboard');
     Route::get('/admin/settings', 'AdminController@settings');
@@ -140,6 +148,9 @@ Route::group(['middleware' => ['adminlogin']], function () {
     // Routes To View Users Order Details on Admin Pannel
     Route::get('/admin/view-orders/{id}', 'ProductsController@viewOrderDetails');
 
+    // Routes To View Order Invoice on Admin Pannel
+    Route::get('/admin/view-order-invoice/{id}', 'ProductsController@viewOrderInvoice');
+
     // Update Order Status
     Route::post('/admin/update-order-status', 'ProductsController@updateOrderStatus');
 
@@ -149,8 +160,22 @@ Route::group(['middleware' => ['adminlogin']], function () {
     Route::get('/admin/delete-banner/{id}', 'BannersController@deleteBanner');
     Route::get('/admin/delete-banner-image/{id}', 'BannersController@deleteBannerImage');
     Route::get('/admin/view-banners', 'BannersController@viewBanners');
+
+    // Admin User Controller
+    Route::get('/admin/view-users', 'UsersController@viewUsers');
+
+    // Admin CMS Page Routes
+    Route::match(['get', 'post'], '/admin/add-cms-page', 'CmsController@addCmsPage');
+    Route::match(['get', 'post'], '/admin/edit-cms-page/{id}', 'CmsController@editCmsPage');
+    Route::get('/admin/delete-cms-page/{id}', 'CmsController@deleteCmsPage');
+    Route::get('/admin/delete-cms-page-image/{id}', 'CmsController@deleteCmsPageImage');
+    Route::get('/admin/view-cms-pages', 'CmsController@viewCmsPage');
 });
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Frontend Contact-Us Route
+Route::match(['get','post'],'/page/contact-us','CmsController@contactUs');
+// Display CMS Page
+Route::match(['get','post'],'/page/{url}', 'CmsController@cmsPage');

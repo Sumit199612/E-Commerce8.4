@@ -64,7 +64,8 @@
                   <td>{{ $order->order_status }}</td>
                   <td>{{ $order->payment_method }}</td>
                   <td class="center">
-                  <a href="{{ url('admin/view-orders/'.$order->id )}}" class="btn btn-success btn-mini" title="View Product">View Order Details</a>
+                  <a href="{{ url('admin/view-orders/'.$order->id )}}" class="btn btn-success btn-mini" title="View Order Details">View Order Details</a><br><br>
+                  <a href="{{ url('admin/view-order-invoice/'.$order->id )}}" class="btn btn-success btn-mini" title="View Order Invoice">View Order Invoice</a>
                 </tr>
                 @endforeach
               </tbody>
