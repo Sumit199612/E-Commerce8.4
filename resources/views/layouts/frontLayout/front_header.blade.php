@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\Controller;
 $mainCategories = Controller::mainCategories();
+use App\Models\Product;
+$cartCount = Product::cartCount();
 ?>
 <header id="header"><!--header-->
 		<div class="header_top"><!--header_top-->
@@ -71,7 +73,7 @@ $mainCategories = Controller::mainCategories();
 									<li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li>
 									<!-- <li><a href="{{ url('/checkout') }}"><i class="fa fa-crosshairs"></i> Checkout</a></li> -->
 									<li><a href="{{ url('/orders') }}"><i class="fa fa-crosshairs"></i> My Orders</a></li>
-									<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+									<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> Cart ({{ $cartCount }})</a></li>
 									<li><a href="{{ url('/account') }}"><i class="fa fa-user"></i> Account</a></li>
 									<li><a href="{{ url('/user-logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
 								@endif

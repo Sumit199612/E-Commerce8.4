@@ -50,7 +50,7 @@ class ProductsController extends Controller
 
             //Upload Image
             if ($request->hasFile('product_image')) {
-                echo $image_tmp = $request->file('product_image');
+                $image_tmp = $request->file('product_image');
                 if ($image_tmp->isValid()) {
                     // echo "Success"; die;
 
@@ -67,6 +67,15 @@ class ProductsController extends Controller
                     //     //Store image name in product table
                     $product->product_image = $filename;
                 }
+            }
+
+            // Upload Video
+            if ($request->hasFile('product_video')) {
+                $video_tmp = $request->file('product_video');
+                $video_name = $video_tmp->getClientOriginalName();
+                $video_path = 'video/backend_videos/products';
+                $video_tmp->move($video_path,$video_name);
+                $product->product_video = $video_name;
             }
 
             if (empty($data['status'])) {
@@ -104,7 +113,6 @@ class ProductsController extends Controller
 
     public function editProduct(Request $request, $id = null)
     {
-
         if ($request->isMethod('post')) {
             $data = $request->all();
             // echo "<pre>"; print_r($data); die;
@@ -131,6 +139,19 @@ class ProductsController extends Controller
                 $filename = '';
             }
 
+            // Upload Video
+            if ($request->hasFile('product_video')) {
+                $video_tmp = $request->file('product_video');
+                $video_name = $video_tmp->getClientOriginalName();
+                $video_path = 'video/backend_videos/products/';
+                $video_tmp->move($video_path,$video_name);
+                $videoName = $video_name;
+            }else if(!empty($data['current_product_video'])){
+                $$videoName = $data['current_product_video'];
+            }else{
+                $$videoName = '';
+            }
+
             if (empty($data['product_description'])) {
                 $data['product_description'] = '';
             }
@@ -151,7 +172,7 @@ class ProductsController extends Controller
                 $featured_product = 1;
             }
 
-            Product::where(['id' => $id])->update(['category_id' => $data['category_id'], 'product_name' => $data['product_name'], 'product_code' => $data['product_code'], 'product_color' => $data['product_color'], 'product_description' => $data['product_description'], 'care' => $data['care'], 'product_price' => $data['product_price'], 'product_image' => $filename, 'status' => $status, 'featured_product' => $featured_product]);
+            Product::where(['id' => $id])->update(['category_id' => $data['category_id'], 'product_name' => $data['product_name'], 'product_code' => $data['product_code'], 'product_color' => $data['product_color'], 'product_description' => $data['product_description'], 'care' => $data['care'], 'product_price' => $data['product_price'], 'product_image' => $filename, 'product_video' => $videoName, 'status' => $status, 'featured_product' => $featured_product]);
             // return redirect('/admin/view-categories')->with('success','Category Updated Successfully !!!');
             return redirect('/admin/view-products')->with('success', 'Product Updated Successfully !!!');
         }
@@ -186,7 +207,6 @@ class ProductsController extends Controller
 
     public function deleteProductImage($id = null)
     {
-
         //Get Product Image Name
         $productImage = Product::where(['id' => $id])->first();
         // echo $productImage->product_image; die;
@@ -214,6 +234,25 @@ class ProductsController extends Controller
         //Delete Product Image from Product table
         Product::where(['id' => $id])->update(['product_image' => '']);
         return redirect()->back()->with('success', 'Product Image has been Deleted Successfully !!!');
+    }
+
+    public function deleteProductVideo($id = null)
+    {
+        //Get Product Image Name
+        $productVideo = Product::where(['id' => $id])->first();
+        // echo $productImage->product_image; die;
+
+        //Get Product Video Paths
+        $video_path = 'video/backend_videos/products/';
+
+        //Delete Product Video if not exists in folder
+        if (file_exists($video_path . $productVideo->product_video)) {
+            unlink($video_path . $productVideo->product_video);
+        }
+
+        //Delete Product Video from Product table
+        Product::where(['id' => $id])->update(['product_video' => '']);
+        return redirect()->back()->with('success', 'Product video has been deleted successfully !!!');
     }
 
     public function deleteAltImage($id = null)
@@ -355,6 +394,7 @@ class ProductsController extends Controller
 
     public function products($url = null)
     {
+        // echo $url; die;
         // Show 404 page if Category Url does not exists.
         $countCategory = Category::where(['url' => $url, 'status' => 1])->count();
         if ($countCategory == 0) {
@@ -371,18 +411,20 @@ class ProductsController extends Controller
             foreach ($subCategories as $subcate) {
                 $cate_ids[] = $subcate->id;
             }
-            $productAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->get();
             // $productAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->paginate(3);
-            // $productAll = json_decode(json_encode($productAll));
-            // echo "<pre>"; print_r($productAll);
+            $productAll = Product::whereIn('category_id', $cate_ids)->where('status', 1)->get();
         } else {
             // If Url is Sub-Category Url
+            // $productAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->paginate(3);
             $productAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->get();
-            $productAll = Product::where(['category_id' => $categoryDetails->id])->where('status', 1)->paginate(3);
         }
+        $meta_title = $categoryDetails->meta_title;
+        $meta_description = $categoryDetails->meta_description;
+        $meta_keywords = $categoryDetails->meta_keywords;
+
         // echo $categoryDetails->id; die;
         // $productAll = Product::where(['category_id' => $categoryDetails->id])->get();
-        return view('products.listing')->with(compact('categories', 'categoryDetails', 'productAll'));
+        return view('products.listing')->with(compact('categories', 'categoryDetails', 'productAll', 'meta_title', 'meta_description', 'meta_keywords'));
     }
 
     public function searchProducts(Request $request) {
@@ -434,8 +476,10 @@ class ProductsController extends Controller
         // echo "<pre>"; print_r($productAltImages); die;
 
         $total_stock = ProductsAttribute::where('product_id', $id)->sum('stock');
-
-        return view('products.detail')->with(compact('productDetails', 'categories', 'productAltImages', 'total_stock', 'relatedProducts'));
+        $meta_title = $productDetails->product_name;
+        $meta_description = $productDetails->product_description;
+        $meta_keywords = $productDetails->product_name;
+        return view('products.detail')->with(compact('productDetails', 'categories', 'productAltImages', 'total_stock', 'relatedProducts', 'meta_title', 'meta_description', 'meta_keywords'));
     }
 
     public function getProductPrice(Request $request)
@@ -452,7 +496,6 @@ class ProductsController extends Controller
 
     public function addtocart(Request $request)
     {
-
         Session::forget('CouponAmount');
         Session::forget('CouponCode');
 
@@ -518,9 +561,10 @@ class ProductsController extends Controller
             $productDetails = Product::where('id', $product->product_id)->first();
             $userCart[$key]->product_image = $productDetails->product_image;
         }
+        $meta_title = "Keshri's Fashion | Shopping Cart";
         // dd($userCart);
         // echo "<pre>"; print_r($userCart); die;
-        return view('products.cart')->with(compact('userCart'));
+        return view('products.cart')->with(compact('userCart', 'meta_title'));
     }
 
     public function deleteCartProduct($id = null)
@@ -687,11 +731,21 @@ class ProductsController extends Controller
                 $shipping->save();
             }
 
-            return redirect()->action('ProductsController@orderReview');
+            // Get Shipping Address of user.
+            $shippingDetails = DeliveryAddress::where(['user_email' => $user_email])->first();
 
+            $pincodeCount = DB::table('pincode')->where(['pincode' => $data['shipping_pincode']])->count();
+            if($pincodeCount == 0){
+                return redirect()->back()->with('error', 'Your location is not available for delivery.');
+            }
+            return redirect()->action('ProductsController@orderReview');
+            
             // echo "Redirect to Order Review Page"; die;
         }
-        return view('products.checkout')->with(compact('userDetails', 'countries', 'shippingDetails'));
+        $meta_title = "Keshri Fashion | Checkout";
+        $meta_description = "Last step is always pleasuring so lets finish it";
+        $meta_keywords = "Keshri, Fashion, Checkout";
+        return view('products.checkout')->with(compact('userDetails', 'countries', 'shippingDetails', 'meta_title', 'meta_description', 'meta_keywords'));
     }
 
     public function orderReview()
@@ -701,14 +755,19 @@ class ProductsController extends Controller
         $userDetails = User::where('id', $user_id)->first();
         $shippingDetails = DeliveryAddress::where('user_id', $user_id)->first();
         $shippingDetails = json_decode(json_encode($shippingDetails));
+        // echo "<pre>"; print_r($shippingDetails); die;
         $session_id = Session::get('session_id');
         $userCart = DB::table('cart')->where(['session_id' => $session_id])->get();
         foreach ($userCart as $key => $product) {
             $productDetails = Product::where('id', $product->product_id)->first();
             $userCart[$key]->product_image = $productDetails->product_image;
         }
+        $codPincodeCount = DB::table('cod_pincode')->where(['pincode' => $shippingDetails->pincode])->count();
+        $prepaidPincodeCount = DB::table('prepaid_pincode')->where(['pincode' => $shippingDetails->pincode])->count();
         // echo "<pre>"; print_r($userCart); die;
-        return view('products.order_review')->with(compact('userDetails', 'shippingDetails', 'userCart'));
+        $meta_title = "Keshri Fashion | Order Review";
+        $meta_description = "Last step is always pleasuring so lets finish it";
+        return view('products.order_review')->with(compact('userDetails', 'shippingDetails', 'userCart', 'meta_title', 'meta_description','codPincodeCount','prepaidPincodeCount'));
     }
 
     public function placeOrder(Request $request)
@@ -721,7 +780,10 @@ class ProductsController extends Controller
             // Get Shipping Address of user.
             $shippingDetails = DeliveryAddress::where(['user_email' => $user_email])->first();
 
-            // echo "<pre>"; print_r($data); die;
+            $pincodeCount = DB::table('pincode')->where(['pincode' => $shippingDetails->pincode])->count();
+            if($pincodeCount == 0){
+                return redirect()->back()->with('error', 'Your location is not available for delivery.');
+            }
 
             if (empty(Session::get('CouponCode'))) {
                 $coupon_code = '';
@@ -827,7 +889,6 @@ class ProductsController extends Controller
 
     public function paytm(Request $request)
     {
-
         return view('orders.paytm');
     }
 
@@ -884,6 +945,14 @@ class ProductsController extends Controller
             // echo "<pre>";print_r($data);die;
             Order::where('id', $data['order_id'])->update(['order_status' => $data['order_status']]);
             return redirect()->back()->with('success', 'Order Status has been updated');
+        }
+    }
+
+    public function checkPincode(Request $request) {
+        if($request->isMethod('post')){
+            $data = $request->all();
+            // echo "<pre>"; print_r($data); die;
+            echo $pincodeCount = DB::table('pincode')->where(['pincode'=>$data['pincode']])->count();
         }
     }
 }

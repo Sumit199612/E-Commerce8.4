@@ -1,6 +1,5 @@
 @extends('layouts.frontLayout.front_design')
 @section('content')
-
     <section>
         <style>
             * {
@@ -20,7 +19,6 @@
                 width: 100px;
                 height: 100px;
             }
-
         </style>
 
         <div class="container">
@@ -80,7 +78,7 @@
                                     <p>
 
                                         <!-- <button id="clickME" onclick="clickME()"> HI</button> -->
-                                        <select id="selSize" name="Size" style="width:150px;">
+                                        <select id="selSize" name="Size" style="width:150px;" required>
                                             <option value="">Select Size</Option>
                                             @foreach ($productDetails->attributes as $sizes)
                                                 <option value="{{ $productDetails->id }}-{{ $sizes->size }}">
@@ -94,17 +92,31 @@
                                         <label>Quantity:</label>
                                         <input type="text" name="quantity" value="1" />
                                         @if ($total_stock > 0)
-                                            <button type="submit" class="btn btn-fefault cart" id="cartButton">
+                                            <button type="submit" class="btn btn-default cart" id="cartButton">
                                                 <i class="fa fa-shopping-cart"></i>
                                                 Add to cart
                                             </button>
                                         @endif
                                     </span>
-                                    <p><b>Availability:</b> <span id="Availability">@if ($total_stock > 0) In Stock @else Out of Stock @endif</p></span>
+                                    <p><b>Availability:</b> <span id="Availability">
+                                            @if ($total_stock > 0)
+                                                In Stock
+                                            @else
+                                                Out of Stock
+                                            @endif
+                                    </p></span>
                                     <p><b>Condition:</b> New</p>
+
+                                    <p><b>Delivery</b>
+                                        <input type="text" class="form-group" id="chkPincode" name="chkPincode"
+                                            placeholder="Check Pincode">
+                                        <button type="button" class="btn btn-default"
+                                            onclick="return checkPincode();">Check</button>
+                                        <span id="pincodeResponse"></span>
+                                    </p>
                                     <p><b>Brand:</b> E-SHOPPER</p>
-                                    <a href=""><img src="images/product-details/share.png" class="share img-responsive"
-                                            alt="" /></a>
+                                    <a href=""><img src="images/product-details/share.png"
+                                            class="share img-responsive" alt="" /></a>
                                 </div>
                                 <!--/product-information-->
                             </form>
@@ -119,6 +131,9 @@
                                 <li class="active"><a href="#description" data-toggle="tab">Description</a></li>
                                 <li><a href="#care" data-toggle="tab">Material & Care</a></li>
                                 <li><a href="#delivery" data-toggle="tab">Delivery Options</a></li>
+                                @if (!empty($productDetails->product_video))
+                                    <li><a href="#video" data-toggle="tab">Product Video</a></li>
+                                @endif
                             </ul>
                         </div>
                         <div class="tab-content">
@@ -141,6 +156,18 @@
                                     </p>
                                 </div>
                             </div>
+                            {{-- @dd($productDetails->product_video) --}}
+                            @if (!empty($productDetails->product_video))
+                                <div class="tab-pane fade" id="video">
+                                    <div class="col-sm-12">
+                                        <video width="480" height="240" controls>
+                                            <source
+                                                src="{{ url('video/backend_videos/products/' . $productDetails->product_video) }}"
+                                                type="video/mp4">
+                                        </video>
+                                    </div>
+                                </div>
+                            @endif
 
                         </div>
                     </div>
@@ -154,8 +181,8 @@
                             <div class="carousel-inner">
                                 <?php $count = 1; ?>
                                 @foreach ($relatedProducts->chunk(3) as $chunk)
-                                    <div <?php if ($count == 1) {?> class="item active" <?php } else {?>
-                                        class="item" <?php }?>>
+                                    <div <?php if ($count == 1) {?> class="item active" <?php } else {?> class="item"
+                                        <?php }?>>
                                         @foreach ($chunk as $item)
                                             <div class="col-sm-4">
                                                 <div class="product-image-wrapper">
@@ -182,7 +209,8 @@
                             <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a class="right recommended-item-control" href="#recommended-item-carousel" data-slide="next">
+                            <a class="right recommended-item-control" href="#recommended-item-carousel"
+                                data-slide="next">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         </div>
@@ -273,7 +301,4 @@
         </script>
 
     </section>
-
-
-
 @endsection

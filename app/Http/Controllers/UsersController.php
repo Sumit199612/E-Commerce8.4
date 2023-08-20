@@ -16,7 +16,10 @@ class UsersController extends Controller
 
     public function userLoginRegister()
     {
-        return view('users.login_register');
+        $meta_title = "Keshri Fashion | Login/Register";
+        $meta_description = "Let's Start Shopping";
+        $meta_keywords = "Keshri, Fashion, Login, Register, Shop, Trending";
+        return view('users.login_register')->with(compact('meta_title', 'meta_description', 'meta_keywords'));
     }
 
     public function login(Request $request)

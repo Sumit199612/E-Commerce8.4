@@ -90,6 +90,13 @@
               </div>
 
               <div class="control-group">
+                <label class="control-label">Product Video</label>
+                <div class="controls">
+                  <input type="file" name="product_video" id="product_video">
+                </div>
+              </div>
+
+              <div class="control-group">
                 <label class="control-label">Enable</label>
                 <div class="controls">
                   <input type="checkbox" name="status" id="status" value="1">

@@ -96,6 +96,20 @@
               </div>
 
               <div class="control-group">
+                <label class="control-label">Product Video</label>
+                <div class="controls">
+                  <input type="file" name="product_video" id="product_video">
+                  <input type="hidden" name="current_product_video" value="{{$productDetails->product_video}}">
+                  @if(!empty($productDetails->product_video))
+                  {{-- <img style="width:50px;" src="{{ asset('/video/backend_videos/products/'.$productDetails->product_video) }}"> --}}
+                  <a target="_blank" href="{{ url('/video/backend_videos/products/'.$productDetails->product_video) }}">View</a>
+
+                  <a href="{{ url('/admin/delete-product-video/'.$productDetails->id) }}">Delete</a>
+                  @endif
+                </div>
+              </div>
+
+              <div class="control-group">
                 <label class="control-label">Enable</label>
                 <div class="controls">
                   <input type="checkbox" name="status" id="status" @if($productDetails->status=="1") checked @endif value="1">

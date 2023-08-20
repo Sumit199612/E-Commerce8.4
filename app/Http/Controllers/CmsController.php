@@ -20,6 +20,9 @@ class CmsController extends Controller
             $cmspage->title = $data['title'];
             $cmspage->url = $data['url'];
             $cmspage->description = $data['description'];
+            $cmspage->meta_title = $data['meta_title'];
+            $cmspage->meta_description = $data['meta_description'];
+            $cmspage->meta_keywords = $data['meta_keywords'];
             if(empty($data['status'])){
                 $status = 0;
             }else{
@@ -42,7 +45,7 @@ class CmsController extends Controller
             }else{
                 $status = 1;
             }
-            CmsPage::where(['id' => $id])->update(['title'=>$data['title'], 'url'=>$data['url'], 'description'=>$data['description'], 'status'=>$status]);
+            CmsPage::where(['id' => $id])->update(['title'=>$data['title'], 'url'=>$data['url'], 'description'=>$data['description'], 'meta_title'=>$data['meta_title'], 'meta_description'=>$data['meta_description'], 'meta_keywords'=>$data['meta_keywords'], 'status'=>$status]);
             return redirect('/admin/view-cms-pages')->with('success','CMS Page has been updated successfully'); 
         }
         $csmPageDetails = CmsPage::where(['id'=>$id])->first();
@@ -71,6 +74,9 @@ class CmsController extends Controller
        if($cmsPageCount>0){
            // Get CMS Page Details
            $cmsPageDetails = CmsPage::where(['url'=>$url])->first();
+           $meta_title = "Keshri Fashion | ".$cmsPageDetails->meta_title;
+           $meta_description = $cmsPageDetails->meta_description;
+           $meta_keywords = $cmsPageDetails->meta_keywords;
        }else{
            abort(404);
        }
@@ -103,7 +109,7 @@ class CmsController extends Controller
                </div>";
        }
        $banners = Banner::where(['status'=>1])->get();
-       return view('pages.cms_page')->with(compact('cmsPageDetails','categories','categories_menu','banners'));
+       return view('pages.cms_page')->with(compact('cmsPageDetails','categories','categories_menu','banners', 'meta_title', 'meta_description', 'meta_keywords'));
    }
 
    public function contactUs(Request $request){

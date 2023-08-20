@@ -319,3 +319,25 @@ function selectPaymentMethod() {
     }
 
 }
+
+function checkPincode(){
+    var pincode = $("#chkPincode").val();
+
+    if(pincode == ""){
+        alert("Please enter pincode to check availability."); return false;
+    }
+    $.ajax({
+        type:'post',
+        data:{pincode:pincode},
+        url:'/check-pincode',
+        success:function(resp){
+            if(resp>0){
+                $("#pincodeResponse").html("<b><font color='green'>"+"This pincode is available for delivery."+"</font></b>");
+            }else{
+                $("#pincodeResponse").html("<b><font color='red'>"+"This pincode is not available for delivery."+"</font></b>");
+            }
+        },error:function(){
+            alert("Error");
+        }
+    })
+}

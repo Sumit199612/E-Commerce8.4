@@ -1,6 +1,6 @@
 @extends('layouts.frontLayout.front_design')
 @section('content')
-<section id="slider"><!--slider-->
+<section id="slider">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -80,6 +80,7 @@
                         @else
                             {{ $categoryDetails->name }}
                         @endif
+                            ({{ count($productAll) }})
                     </h2>
                     @foreach($productAll as $product)
                     <div class="col-sm-4">

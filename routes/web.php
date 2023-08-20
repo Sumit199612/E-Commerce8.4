@@ -76,6 +76,9 @@ Route::match(['GET', 'POST'], '/check-email', 'UsersController@checkEmail');
 // Search Products
 Route::match(['get','post'], '/search-products', 'ProductsController@searchProducts');
 
+// Check Pincode
+Route::post('/check-pincode', 'ProductsController@checkPincode');
+
 // All Routes after User Login
 Route::group(['middleware' => ['frontlogin']], function () {
     // User Account Page
@@ -126,6 +129,7 @@ Route::group(['middleware' => ['adminlogin']], function () {
     Route::match(['get', 'post'], '/admin/add-product', 'ProductsController@addProduct');
     Route::match(['get', 'post'], '/admin/edit-product/{id}', 'ProductsController@editProduct');
     Route::get('/admin/delete-product-image/{id}', 'ProductsController@deleteProductImage');
+    Route::get('/admin/delete-product-video/{id}', 'ProductsController@deleteProductVideo');
     Route::get('/admin/delete-alt-image/{id}', 'ProductsController@deleteAltImage');
     Route::get('/admin/delete-product/{id}', 'ProductsController@deleteProduct');
     Route::get('/admin/view-products', 'ProductsController@viewProducts');

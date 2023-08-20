@@ -3,10 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+    {{-- @dd($meta_title); --}}
     <title>@if(!empty($meta_title)) {{ $meta_title }} @else Keshri's Fashion @endif</title>
     @if(!empty($meta_description))<meta name="description" content="{{ $meta_description }}"> @endif
     @if(!empty($meta_keywords))<meta name="keywords" content="{{ $meta_keywords }}"> @endif
@@ -14,11 +12,11 @@
 
     <!-- Google Task Manager GTM -->
         <!-- Google Tag Manager -->
-            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            {{-- <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-WG4LV82');</script>
+            })(window,document,'script','dataLayer','GTM-WG4LV82');</script> --}}
         <!-- End Google Tag Manager -->
     <!-- End Google Task Manager GTM -->
 

@@ -52,6 +52,27 @@
               </div>
 
               <div class="control-group">
+                <label class="control-label">Meta Title</label>
+                <div class="controls">
+                  <textarea name="meta_title" id="meta_title">{{ $csmPageDetails->meta_title }}</textarea>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label">Meta Description</label>
+                <div class="controls">
+                  <textarea name="meta_description" id="meta_description">{{ $csmPageDetails->meta_description }}</textarea>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label">Meta Keywords</label>
+                <div class="controls">
+                  <textarea name="meta_keywords" id="meta_keywords">{{ $csmPageDetails->meta_keywords }}</textarea>
+                </div>
+              </div>
+
+              <div class="control-group">
                 <label class="control-label">Enable</label>
                 <div class="controls">
                   <input type="checkbox" name="status" id="status" @if($csmPageDetails->status=="1") checked @endif value="1">
